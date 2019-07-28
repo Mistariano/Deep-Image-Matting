@@ -40,14 +40,22 @@ if __name__ == '__main__':
     print(final.summary())
 
     out_test_path = 'data/merged_test/'
+    if not os.path.exists(out_test_path):
+        os.makedirs(out_test_path)
     test_images = [f for f in os.listdir(out_test_path) if
                    os.path.isfile(os.path.join(out_test_path, f)) and f.endswith('.png')]
-    samples = random.sample(test_images, 10)
+    print('test_images:', test_images)
+    assert len(test_images) > 0
+    samples = random.sample(test_images, min(10, len(test_images)))
 
     bg_test = 'data/bg_test/'
+    if not os.path.exists(bg_test):
+        os.makedirs(bg_test)
     test_bgs = [f for f in os.listdir(bg_test) if
-                os.path.isfile(os.path.join(bg_test, f)) and f.endswith('.jpg')]
-    sample_bgs = random.sample(test_bgs, 10)
+                os.path.isfile(os.path.join(bg_test, f)) and f.endswith('.png')]
+    print('test_bgs:', test_bgs)
+    assert len(test_bgs) > 0
+    sample_bgs = random.sample(test_bgs, min(10, len(test_bgs)))
 
     total_loss = 0.0
     for i in range(len(samples)):
@@ -60,7 +68,13 @@ if __name__ == '__main__':
         bg_h, bg_w = bgr_img.shape[:2]
         print('bg_h, bg_w: ' + str((bg_h, bg_w)))
 
-        a = get_alpha_test(image_name)
+        # a = get_alpha_test(image_name)
+        # TODO: fix fucking here
+        filename = os.path.join('mask_test', filename)
+        filename = os.path.join('data', filename)
+        print('mask file name:', filename)
+        a = cv.imread(filename, 0)
+
         a_h, a_w = a.shape[:2]
         print('a_h, a_w: ' + str((a_h, a_w)))
 
@@ -98,7 +112,8 @@ if __name__ == '__main__':
 
         sad_loss = compute_sad_loss(y_pred, alpha, trimap)
         mse_loss = compute_mse_loss(y_pred, alpha, trimap)
-        str_msg = 'sad_loss: %.4f, mse_loss: %.4f, crop_size: %s' % (sad_loss, mse_loss, str(crop_size))
+        str_msg = 'sad_loss: %.4f, mse_loss: %.4f, crop_size: %s' % (
+            sad_loss, mse_loss, str(crop_size))
         print(str_msg)
 
         out = y_pred.copy()
@@ -112,7 +127,8 @@ if __name__ == '__main__':
         hratio = img_rows / bh
         ratio = wratio if wratio > hratio else hratio
         if ratio > 1:
-            bg = cv.resize(src=bg, dsize=(math.ceil(bw * ratio), math.ceil(bh * ratio)), interpolation=cv.INTER_CUBIC)
+            bg = cv.resize(src=bg, dsize=(math.ceil(bw * ratio), math.ceil(bh * ratio)),
+                           interpolation=cv.INTER_CUBIC)
         im, bg = composite4(bgr_img, bg, y_pred, img_cols, img_rows)
         cv.imwrite('images/{}_compose.png'.format(i), im)
         cv.imwrite('images/{}_new_bg.png'.format(i), bg)

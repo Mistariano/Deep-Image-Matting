@@ -14,14 +14,18 @@ from config import unknown_code
 from utils import safe_crop
 
 kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (3, 3))
-with open('data/Combined_Dataset/Training_set/training_fg_names.txt') as f:
-    fg_files = f.read().splitlines()
-with open('data/Combined_Dataset/Test_set/test_fg_names.txt') as f:
-    fg_test_files = f.read().splitlines()
-with open('data/Combined_Dataset/Training_set/training_bg_names.txt') as f:
-    bg_files = f.read().splitlines()
-with open('data/Combined_Dataset/Test_set/test_bg_names.txt') as f:
-    bg_test_files = f.read().splitlines()
+fg_files, fg_test_files, bg_files, bg_test_files = [], [], [], []
+try:
+    with open('data/Combined_Dataset/Training_set/training_fg_names.txt', 'r') as f:
+        fg_files = f.read().splitlines()
+    with open('data/Combined_Dataset/Test_set/test_fg_names.txt', 'r') as f:
+        fg_test_files = f.read().splitlines()
+    with open('data/Combined_Dataset/Training_set/training_bg_names.txt', 'r') as f:
+        bg_files = f.read().splitlines()
+    with open('data/Combined_Dataset/Test_set/test_bg_names.txt', 'r') as f:
+        bg_test_files = f.read().splitlines()
+except Exception as e:
+    print(e)
 
 
 def get_alpha(name):
@@ -67,7 +71,8 @@ def process(im_name, bg_name):
     hratio = h / bh
     ratio = wratio if wratio > hratio else hratio
     if ratio > 1:
-        bg = cv.resize(src=bg, dsize=(math.ceil(bw * ratio), math.ceil(bh * ratio)), interpolation=cv.INTER_CUBIC)
+        bg = cv.resize(src=bg, dsize=(math.ceil(bw * ratio), math.ceil(bh * ratio)),
+                       interpolation=cv.INTER_CUBIC)
 
     return composite4(im, bg, a, w, h)
 

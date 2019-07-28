@@ -9,10 +9,10 @@ bg/
 fg/
 mask/
 merged/
-bg_test/
-fg_test/
-mask_test/
-merged_test/
+# bg_test/
+# fg_test/
+# mask_test/
+# merged_test/
 temp/
 .cache/
 VOC2008test.tar
